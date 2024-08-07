@@ -38,7 +38,8 @@ const register = async (req, res) => {
       userId: userCreated._id.toString(),
     });
   } catch (error) {
-    res.status(400).json({ msg: "Internal Server error" });
+    // res.status(400).json({ msg: "Internal Server error" });
+    next(error);
   }
 };
 
@@ -53,9 +54,9 @@ const login = async (req, res) => {
       return res.status(404).json({ msg: "Invalid Credentials" });
     }
 
-   // const user = await bcrypt.compare(password, userExist.password);
+    // const user = await bcrypt.compare(password, userExist.password);
 
-   const user = await userExist.comparePassword(password)
+    const user = await userExist.comparePassword(password);
 
     if (user) {
       res.status(200).json({
