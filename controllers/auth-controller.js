@@ -1,5 +1,5 @@
 const User = require("../models/user-model");
-// const bcrypt = require("bcrypt");
+const bcrypt = require("bcrypt");
 
 const home = async (req, res) => {
   try {
@@ -9,7 +9,7 @@ const home = async (req, res) => {
   }
 };
 
-//Register User
+//Register User controller
 const register = async (req, res) => {
   try {
     // console.log(req.body);
@@ -42,4 +42,33 @@ const register = async (req, res) => {
   }
 };
 
-module.exports = { home, register };
+//login controller
+const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const userExist = await User.findOne({ email });
+    console.log(userExist);
+
+    if (!userExist) {
+      return res.status(404).json({ msg: "Invalid Credentials" });
+    }
+
+   // const user = await bcrypt.compare(password, userExist.password);
+
+   const user = await userExist.comparePassword(password)
+
+    if (user) {
+      res.status(200).json({
+        msg: "Login successfull",
+        token: await userExist.generateToken(),
+        userId: userExist._id.toString(),
+      });
+    } else {
+      return res.status(401).json({ msg: "Invalid Email or Password" });
+    }
+  } catch (error) {
+    res.status(500).json({ msg: "Internal Server Error" });
+  }
+};
+
+module.exports = { home, register, login };
